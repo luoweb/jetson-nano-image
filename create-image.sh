@@ -8,6 +8,10 @@ set -e
 
 BSP=https://developer.nvidia.com/embedded/r32-2-3_Release_v1.0/t210ref_release_aarch64/Tegra210_Linux_R32.2.3_aarch64.tbz2
 
+JETSON_ROOTFS_DIR=`pwd`/jetson_rootfs
+JETSON_BUILD_DIR=`pwd`/jetson_build
+
+
 # Check if the user is not root
 if [ "x$(whoami)" != "xroot" ]; then
         printf "\e[31mThis script requires root privilege\e[0m\n"
@@ -34,7 +38,7 @@ mkdir -p $JETSON_BUILD_DIR
 # Download L4T
 if [ ! "$(ls -A $JETSON_BUILD_DIR)" ]; then
         printf "\e[32mDownload L4T...       "
-        wget -qO- $BSP | tar -jxpf - -C $JETSON_BUILD_DIR
+        # wget -qO- $BSP | tar -jxpf - -C $JETSON_BUILD_DIR
 	rm $JETSON_BUILD_DIR/Linux_for_Tegra/rootfs/README.txt
         printf "[OK]\n"
 fi

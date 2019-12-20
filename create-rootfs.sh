@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 #
 # Author: Badr BADRI © pythops
@@ -8,6 +8,10 @@ set -e
 
 ARCH=arm64
 RELEASE=bionic
+MIRROR_URL=http://mirrors.ustc.edu.cn
+CD_URL=http://mirrors.ustc.edu.cn/ubuntu-cdimage
+PORT_URL=http://mirrors.ustc.edu.cn/ubuntu-ports
+JETSON_ROOTFS_DIR=`pwd`/jetson_rootfs
 
 # Check if the user is not root
 if [ "x$(whoami)" != "xroot" ]; then
@@ -35,11 +39,15 @@ printf "[OK]\n"
 # Download ubuntu base image
 if [ ! "$(ls -A $JETSON_ROOTFS_DIR)" ]; then
 	printf "Download the base image...   "
-  	wget -qO- http://cdimage.ubuntu.com/ubuntu-base/releases/18.04.3/release/ubuntu-base-18.04.3-base-arm64.tar.gz | tar xzvf - -C $JETSON_ROOTFS_DIR > /dev/null
+  	# wget -qO- http://cdimage.ubuntu.com/ubuntu-base/releases/18.04.3/release/ubuntu-base-18.04.3-base-arm64.tar.gz | tar xzvf - -C $JETSON_ROOTFS_DIR > /dev/null
+	wget -qO- ${CD_URL}/ubuntu-base/releases/18.04.3/release/ubuntu-base-18.04.3-base-arm64.tar.gz | tar xzvf - -C $JETSON_ROOTFS_DIR > /dev/null
 	printf "[OK]\n"
 else
 	printf "Base image already downloaded"
 fi
+	
+# Replace the http://ports.ubuntu.com/ubuntu-ports/ with http://mirrors.ustc.edu.cn/ubuntu-ports/
+sed -i 's#http://ports.ubuntu.com/ubuntu-ports/#http://mirrors.ustc.edu.cn/ubuntu-ports/#g' $JETSON_ROOTFS_DIR/etc/apt/sources.list
 
 # Run debootsrap first stage
 printf "Run debootstrap first stage...  "
@@ -50,7 +58,8 @@ debootstrap \
         --variant=minbase \
 	--include=python3 \
         $RELEASE \
-	$JETSON_ROOTFS_DIR > /dev/null
+	$JETSON_ROOTFS_DIR \
+	${PORT_URL} > /dev/null
 printf "[OK]\n"
 
 # Copy qemu-aarch64-static
